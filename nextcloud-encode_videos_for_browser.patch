@@ -1,0 +1,22 @@
+diff --git a/projects/.zfs/snapshot/global-10min-2022-08-08-131001/landingpage/nextcloud/apps/workflow_media_converter/lib/BackgroundJobs/ConvertMediaJob.php b/p/landingpage/nextcloud/apps/workflow_media_converter/lib/BackgroundJobs/ConvertMediaJob.php
+index 478558b..86c5c5a 100644
+--- a/projects/.zfs/snapshot/global-10min-2022-08-08-131001/landingpage/nextcloud/apps/workflow_media_converter/lib/BackgroundJobs/ConvertMediaJob.php
++++ b/p/landingpage/nextcloud/apps/workflow_media_converter/lib/BackgroundJobs/ConvertMediaJob.php
+@@ -87,7 +87,7 @@ class ConvertMediaJob extends QueuedJob {
+ 		$this->sourceExtension = pathinfo($this->sourceFilename, PATHINFO_EXTENSION);
+ 		$this->tempSourcePath = $this->sourceFolderView->toTmpFile($this->sourceFilename);
+ 		$this->tempSourceFilename = basename($this->tempSourcePath);
+-		$this->tempOutputPath = str_replace(".{$this->sourceExtension}", ".{$this->outputExtension}", $this->tempSourcePath);
++        $this->tempOutputPath = str_replace(".{$this->sourceExtension}", ".tmp.{$this->outputExtension}", $this->tempSourcePath);
+ 		$this->tempOutputFilename = basename($this->tempOutputPath);
+ 		$this->outputFilePath = str_replace(".{$this->sourceExtension}", ".{$this->outputExtension}", $this->path);
+ 		$this->outputFileName = basename($this->outputFilePath);
+@@ -132,7 +132,7 @@ class ConvertMediaJob extends QueuedJob {
+ 	public function convertMedia() {
+ 		$threads = $this->configService->getAppConfigValue('threadLimit', 0);
+ 
+-		$command = "ffmpeg -threads $threads -i {$this->tempSourcePath} {$this->tempOutputPath}";
++		$command = "ffmpeg -i {$this->tempSourcePath} -vcodec libx264 -pix_fmt yuv420p -profile:v baseline -level 3 -strict 2 -acodec aac -threads $threads {$this->tempOutputPath}";
+ 
+ 		$process = $this->processFactory->create($command);
+ 
